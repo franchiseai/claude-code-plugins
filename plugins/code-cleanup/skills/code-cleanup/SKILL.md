@@ -9,7 +9,7 @@ Remove AI-generated patterns from code changes while preserving intentional func
 
 ## Workflow
 
-1. Get the diff: `git diff main...HEAD` (or specified base branch)
+1. Get the diff: `git diff master...HEAD` (or specified base branch)
 2. For each changed file, compare new code against the file's existing style
 3. Remove identified slop patterns
 4. Report a 1-3 sentence summary of changes
@@ -35,6 +35,12 @@ Remove AI-generated patterns from code changes while preserving intentional func
 - Naming conventions that differ from the file (camelCase vs snake_case)
 - Brace/spacing style that doesn't match surrounding code
 - Import organization that breaks file patterns
+
+**Drizzle artifacts to revert**
+- Changes to `_journal.json` files (migration journal)
+- Changes to Drizzle snapshot files (`meta/*_snapshot.json`)
+- Auto-generated migration files that weren't intentionally created
+- Revert these with: `git checkout master -- <file>` or remove from staging
 
 ## Guidelines
 

@@ -10,6 +10,9 @@ Claude Code plugins for code quality and development workflows.
 
 # Install the code-cleanup plugin
 /plugin install code-cleanup@fsai
+
+# Install the dead-code plugin
+/plugin install dead-code@fsai
 ```
 
 ## Plugins
@@ -23,4 +26,14 @@ Remove AI-generated code patterns ("slop") from a branch.
 - "Clean up AI code"
 - "Make this code look human-written"
 
-Claude will diff against main, identify AI patterns, and fix them.
+Claude will diff against master, identify AI patterns, and fix them.
+
+### code-cleanup
+
+Remove dead code from a branch.
+
+**Usage:** Just ask Claude Code:
+- "Remove the dead code from this branch"
+
+Claude will diff against master, identify dead code, and remove it.
+

@@ -9,7 +9,7 @@ Find and remove code added in the current branch that is never actually used.
 
 ## Workflow
 
-1. Get the diff: `git diff main...HEAD --name-only` to find changed files
+1. Get the diff: `git diff master...HEAD --name-only` to find changed files
 2. For each changed file, identify newly added exports:
    - Functions, classes, constants, types
    - Controllers, services, SDK functions, API endpoints
