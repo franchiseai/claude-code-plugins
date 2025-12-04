@@ -10,6 +10,12 @@
       "source": "./plugins/code-cleanup",
       "description": "Remove AI-generated code patterns (slop) from branches",
       "version": "1.0.0"
+    },
+    {
+      "name": "dead-code",
+      "source": "./plugins/dead-code",
+      "description": "Find and remove unused code added in the current branch",
+      "version": "1.0.0"
     }
   ]
 }

@@ -1,0 +1,10 @@
+{
+  "name": "dead-code",
+  "version": "1.0.0",
+  "description": "Find and remove unused code added in the current branch",
+  "author": {
+    "name": "Franchise AI",
+    "email": "dev@franchiseai.com"
+  },
+  "license": "MIT"
+}
