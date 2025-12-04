@@ -1,0 +1,15 @@
+{
+  "name": "fsai",
+  "owner": {
+    "name": "Franchise AI",
+    "email": "dev@franchiseai.com"
+  },
+  "plugins": [
+    {
+      "name": "code-cleanup",
+      "source": "./plugins/code-cleanup",
+      "description": "Remove AI-generated code patterns (slop) from branches",
+      "version": "1.0.0"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "code-cleanup",
+  "version": "1.0.0",
+  "description": "Remove AI-generated code patterns (slop) from branches",
+  "author": {
+    "name": "Franchise AI",
+    "email": "dev@franchiseai.com"
+  },
+  "license": "MIT"
+}
