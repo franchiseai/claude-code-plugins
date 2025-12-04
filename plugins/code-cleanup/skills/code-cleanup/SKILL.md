@@ -12,7 +12,15 @@ Remove AI-generated patterns from code changes while preserving intentional func
 1. Get the diff: `git diff master...HEAD` (or specified base branch)
 2. For each changed file, compare new code against the file's existing style
 3. Remove identified slop patterns
-4. Report a 1-3 sentence summary of changes
+4. Report a 1-3 sentence summary of changes, with
+  ✅ Files Cleaned (12)
+   -filelist-
+  👀 Read But Clean (3)
+  -filelist-
+  ❌ Not Yet Checked (29)
+  -filelist-
+5. Continue working through "Not Yet Checked" files
+6. If there are no files left, report a summary of your activities to the user
 
 ## Slop Patterns to Remove
 
