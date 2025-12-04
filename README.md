@@ -28,7 +28,7 @@ Remove AI-generated code patterns ("slop") from a branch.
 
 Claude will diff against master, identify AI patterns, and fix them.
 
-### code-cleanup
+### dead-code
 
 Remove dead code from a branch.
 
