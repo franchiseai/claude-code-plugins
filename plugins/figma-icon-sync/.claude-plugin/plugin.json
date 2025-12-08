@@ -1,0 +1,10 @@
+{
+  "name": "figma-icon-sync",
+  "version": "1.0.0",
+  "description": "Sync icons from Figma design system to your codebase using Figma MCP",
+  "author": {
+    "name": "bill0x2a",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}

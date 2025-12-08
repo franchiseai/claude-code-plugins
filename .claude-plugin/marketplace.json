@@ -16,6 +16,12 @@
       "source": "./plugins/dead-code",
       "description": "Find and remove unused code added in the current branch",
       "version": "1.0.0"
+    },
+    {
+      "name": "figma-icon-sync",
+      "source": "./plugins/figma-icon-sync",
+      "description": "Sync icons from Figma design system to your codebase using Figma MCP",
+      "version": "1.0.0"
     }
   ]
 }
