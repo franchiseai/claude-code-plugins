@@ -1,0 +1,10 @@
+{
+  "name": "worktree",
+  "version": "1.0.0",
+  "description": "Manage git worktrees for parallel development",
+  "author": {
+    "name": "bill0x2a",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}

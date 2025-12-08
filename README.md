@@ -8,11 +8,10 @@ Claude Code plugins for code quality and development workflows.
 # Add the marketplace
 /plugin marketplace add franchiseai/claude-code-plugins
 
-# Install the code-cleanup plugin
+# Install plugins
 /plugin install code-cleanup@fsai
-
-# Install the dead-code plugin
 /plugin install dead-code@fsai
+/plugin install worktree@fsai
 ```
 
 ## Plugins
@@ -36,4 +35,15 @@ Remove dead code from a branch.
 - "Remove the dead code from this branch"
 
 Claude will diff against master, identify dead code, and remove it.
+
+### worktree
+
+Manage git worktrees for parallel development.
+
+**Usage:** Just ask Claude Code:
+- "Create a worktree for feature-xyz"
+- "List my worktrees"
+- "Remove the fsai2 worktree"
+
+Claude will manage worktrees and remind you to install dependencies.
 

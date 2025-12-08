@@ -16,6 +16,12 @@
       "source": "./plugins/dead-code",
       "description": "Find and remove unused code added in the current branch",
       "version": "1.0.0"
+    },
+    {
+      "name": "worktree",
+      "source": "./plugins/worktree",
+      "description": "Manage git worktrees for parallel development",
+      "version": "1.0.0"
     }
   ]
 }
