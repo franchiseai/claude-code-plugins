@@ -50,6 +50,29 @@ Remove AI-generated patterns from code changes while preserving intentional func
 - Auto-generated migration files that weren't intentionally created
 - Revert these with: `git checkout master -- <file>` or remove from staging
 
+**Duplicate hooks/utilities**
+- Multiple files with the same name serving similar purposes—consolidate to one
+- Read-only hooks when a CRUD hook already exists for the same entity
+- Delete the simpler duplicate, update imports to use the complete version
+
+**Redundant error handling**
+- `onError` handlers in mutations when QueryClient already handles errors globally via `MutationCache.onError`
+- Duplicate toast notifications that the global handler already shows
+- Check App.tsx or QueryClient setup before adding per-mutation error handlers
+
+**Manual cache invalidation**
+- Direct `queryClient.invalidateQueries()` calls when `useOptimism` hook is available
+- Use `useOptimism` functions instead:
+  - `optimisticalltyAddToList` for create operations
+  - `optimisiticallyUpdateObjectInList` for updates
+  - `optimisticallyRemoveFromList` + `revertOptimisticUpdate` for optimistic deletes
+  - `syncCacheWithServer` for post-mutation sync
+
+**One-off mutations duplicating existing hooks**
+- Components creating mutations that already exist in nearby hooks
+- A "bulk" action hook can handle single items—use it instead of creating a new mutation
+- Look for existing `use*Actions` or `use*Mutations` hooks before creating inline mutations
+
 ## Guidelines
 
 - Preserve functionality—only remove stylistic slop
