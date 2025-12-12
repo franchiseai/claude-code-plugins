@@ -22,6 +22,12 @@
       "source": "./plugins/worktree",
       "description": "Manage git worktrees for parallel development",
       "version": "1.0.0"
+    },
+    {
+      "name": "pr-to-ticket",
+      "source": "./plugins/pr-to-ticket",
+      "description": "File Linear tickets from PR review feedback",
+      "version": "1.0.0"
     }
   ]
 }

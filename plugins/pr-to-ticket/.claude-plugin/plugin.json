@@ -1,0 +1,10 @@
+{
+  "name": "pr-to-ticket",
+  "version": "1.0.0",
+  "description": "File Linear tickets from PR review feedback",
+  "author": {
+    "name": "bill0x2a",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}
