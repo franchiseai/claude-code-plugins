@@ -1,0 +1,10 @@
+{
+  "name": "backend-architecture",
+  "version": "1.0.0",
+  "description": "Analyze and refactor backend code to follow entity/service separation patterns",
+  "author": {
+    "name": "ScriptSipper",
+    "email": "josh@franchisesystems.ai"
+  },
+  "license": "MIT"
+}

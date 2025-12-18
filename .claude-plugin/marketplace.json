@@ -28,6 +28,12 @@
       "source": "./plugins/pr-to-ticket",
       "description": "File Linear tickets from PR review feedback",
       "version": "1.0.0"
+    },
+    {
+      "name": "backend-architecture",
+      "source": "./plugins/backend-architecture",
+      "description": "Analyze and refactor backend code to entity/service separation pattern",
+      "version": "1.0.0"
     }
   ]
 }
