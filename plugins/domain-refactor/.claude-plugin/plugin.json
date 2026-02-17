@@ -1,0 +1,10 @@
+{
+  "name": "domain-refactor",
+  "version": "1.0.0",
+  "description": "Refactor backend domains to follow the 3-layer architecture pattern",
+  "author": {
+    "name": "bill0x2a",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}
