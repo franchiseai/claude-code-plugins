@@ -34,6 +34,18 @@
       "source": "./plugins/backend-architecture",
       "description": "Analyze and refactor backend code to entity/service separation pattern",
       "version": "1.0.0"
+    },
+    {
+      "name": "entity-graph",
+      "source": "./plugins/entity-graph",
+      "description": "Design data models as Mermaid ER diagrams with Drizzle schema code",
+      "version": "1.0.0"
+    },
+    {
+      "name": "ux-flows",
+      "source": "./plugins/ux-flows",
+      "description": "Turn meeting notes into clean UX flow docs for design teams",
+      "version": "1.0.0"
     }
   ]
 }

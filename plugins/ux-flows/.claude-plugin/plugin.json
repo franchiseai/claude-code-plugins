@@ -1,0 +1,10 @@
+{
+  "name": "ux-flows",
+  "version": "1.0.0",
+  "description": "Turn meeting notes into clean UX flow docs for design teams",
+  "author": {
+    "name": "bill0x2a",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}

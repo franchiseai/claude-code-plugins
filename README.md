@@ -13,6 +13,8 @@ Claude Code plugins for code quality and development workflows.
 /plugin install dead-code@fsai
 /plugin install worktree@fsai
 /plugin install architecture-refactor@fsai
+/plugin install entity-graph@fsai
+/plugin install ux-flows@fsai
 ```
 
 ## Plugins
@@ -127,6 +129,34 @@ async convertDeal(dealId) {
   await dealNotifications.onConverted(deal);
 }
 ```
+
+---
+
+### entity-graph
+
+Design data models as Mermaid ER diagrams with implementation-ready Drizzle schema code.
+
+**Usage:** Just ask Claude Code:
+
+- "Design the data model for campaigns"
+- "I need new tables for user notifications"
+- "Schema design for the scheduling feature"
+
+Claude will read your existing schema conventions, ask clarifying questions, present a Mermaid ER diagram, and write an implementation plan with exact Drizzle code.
+
+---
+
+### ux-flows
+
+Turn meeting notes and technical specs into clean UX flow docs for design teams.
+
+**Usage:** Just ask Claude Code:
+
+- "Clean up these flows for the design team"
+- "Write UX flows from these meeting notes"
+- "Design handoff doc for the onboarding feature"
+
+Claude will strip implementation details and layout prescriptions, keep edge cases and states, and output a ~1 page doc in user-facing language.
 
 ---
 

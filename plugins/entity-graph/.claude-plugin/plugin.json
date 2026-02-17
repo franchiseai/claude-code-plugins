@@ -1,0 +1,10 @@
+{
+  "name": "entity-graph",
+  "version": "1.0.0",
+  "description": "Design data models as Mermaid ER diagrams with Drizzle schema code",
+  "author": {
+    "name": "bill0x2a",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}
