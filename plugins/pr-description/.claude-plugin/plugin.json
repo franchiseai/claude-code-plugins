@@ -1,0 +1,10 @@
+{
+  "name": "pr-description",
+  "version": "1.0.0",
+  "description": "Write standardized PR descriptions and create GitHub PRs",
+  "author": {
+    "name": "bill0x2a",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}
