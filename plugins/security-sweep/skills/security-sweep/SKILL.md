@@ -30,9 +30,40 @@ You are acting as a senior application security engineer performing an internal 
 - Be thorough — don't skip files because they look low-risk.
 - If you cannot access a file or directory, note it and move on.
 
-## Audit Categories
+---
 
-Work through each category in order. For each finding, report:
+## Two-Pass Methodology
+
+This sweep uses a two-pass approach to minimise false positives:
+
+### Pass 1: Breadth Scan
+
+Launch parallel agents to pattern-match across the codebase. Each agent covers a cluster of audit categories (see below). Findings are reported at face value based on code at the point of use.
+
+### Pass 2: Depth Verification
+
+For every High+ finding from Pass 1, launch verification agents to check each finding against six criteria:
+
+1. **Trace data flow upstream** — Where does the input actually originate? Is it user-controlled, admin-only, system-generated, or hardcoded? A `dangerouslySetInnerHTML` with admin-only content is very different from one with user input.
+2. **Trace data flow downstream** — Does the output reach a dangerous sink, or is it intercepted by middleware, validation, or sanitisation before it gets there?
+3. **Check for parallel/alternative controls** — Is there a separate auth system, upstream WAF, infrastructure-level protection, or compensating control that mitigates the finding? (e.g., a cookie-session vulnerability doesn't matter if auth uses a completely separate token system)
+4. **Check if the feature is active** — Is the code vestigial/dead? Is a gate disabled? Is a flag defaulted to safe? Dead code with a vulnerability is Informational, not Critical.
+5. **Check production configuration** — Is the env var actually set in production (check `infra/` stacks)? Does infrastructure compensate? A "missing secret" finding is moot if the secret is configured via `config.requireSecret()`.
+6. **Assess practical exploitability** — What does an attacker need to exploit this? Auth? Network access? Timing? Multiple steps? How realistic is the full attack chain end-to-end?
+
+After verification, adjust severities. Include both the initial and verified severity in the report so the methodology is transparent.
+
+**Severity scale after verification:**
+- **High:** Confirmed exploitable with realistic attack chain
+- **Medium:** Real issue but mitigating factors reduce risk or exploitability
+- **Low:** Valid concern but impractical to exploit, or compensating controls exist
+- **Informational:** Dead code, by-design behaviour, or standard practice flagged by pattern matching
+
+---
+
+## Audit Categories (Pass 1)
+
+Work through each category. For each finding, report:
 
 - **Severity:** Critical / High / Medium / Low
 - **Category:** (e.g. Auth, Injection, Secrets, etc.)
@@ -128,9 +159,11 @@ Work through each category in order. For each finding, report:
 - Look for any sensitive logic or API keys bundled into the client-side JS
 - Check for `dangerouslySetInnerHTML` usage and whether input is sanitised
 
+---
+
 ## Output
 
-When you have completed the sweep, do two things:
+When you have completed both passes, do two things:
 
 ### 1. Write the report
 
@@ -143,19 +176,24 @@ Save the full report to `docs/security/YYYY-MM-DD-security-sweep.md` using today
 {{else}}
 **Scope:** Full codebase
 {{/if}}
+**Methodology:** Two-pass analysis — breadth scan followed by depth verification
 
 ## Summary
-- **Critical:** X | **High:** X | **Medium:** X | **Low:** X
-- **Top 3 most urgent issues:**
+- **High:** X | **Medium:** X | **Low:** X | **Informational:** X
+- **Top 3 issues to address:**
   1. ...
   2. ...
   3. ...
 
+> **Methodology note:** Initial breadth scan identified X High+ findings.
+> Depth verification reduced most severities. This report reflects verified severities.
+
 ## Findings
 
-### [SEVERITY] Category — Short Title
+### [VERIFIED SEVERITY] Category — Short Title
 **Location:** `path/to/file.ts:line`
 **Description:** ...
+**Mitigating factors:** ... (what the verification pass found)
 **Recommendation:** ...
 
 ---
@@ -166,12 +204,16 @@ Save the full report to `docs/security/YYYY-MM-DD-security-sweep.md` using today
 List areas where the implementation appears solid.
 
 ## Suggested Next Steps
-Prioritised list of remediation actions.
+Prioritised list of remediation actions grouped by priority.
+
+## Verification Methodology
+Include the Pass 1 → Pass 2 severity change table showing how findings shifted after verification.
 ```
 
 ### 2. Tell the user
 
 After writing the report, tell the user:
 - The file path where the report was saved
-- The summary counts (Critical/High/Medium/Low)
-- The top 3 most urgent issues
+- The summary counts by severity
+- The top 3 issues to address
+- How many findings were downgraded during verification (e.g., "Initial scan found 3 Critical + 10 High; after verification: 0 Critical, 1 High")
