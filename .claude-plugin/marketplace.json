@@ -58,6 +58,12 @@
       "source": "./plugins/pr-description",
       "description": "Write standardized PR descriptions and create GitHub PRs",
       "version": "1.0.0"
+    },
+    {
+      "name": "security-sweep",
+      "source": "./plugins/security-sweep",
+      "description": "Run a security audit of the codebase and produce a prioritised findings report",
+      "version": "1.0.0"
     }
   ]
 }

@@ -1,0 +1,10 @@
+{
+  "name": "security-sweep",
+  "version": "1.0.0",
+  "description": "Run a security audit of the codebase and produce a prioritised findings report",
+  "author": {
+    "name": "ScriptSipper",
+    "email": "josh@franchisesystems.ai"
+  },
+  "license": "MIT"
+}
