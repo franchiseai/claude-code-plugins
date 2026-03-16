@@ -1,0 +1,28 @@
+{
+  "description": "Observation hooks for skill evolution — records skill usage and session outcomes",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/record-observation.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check if any Skill tool was used in this session. If so, evaluate whether each skill completed successfully, partially, or failed based on the conversation. For each skill used, append a complete observation record to .claude/skill-evolution/observations.jsonl. Each record should be a single JSON line with fields: timestamp (ISO 8601), sessionId, skillName, pluginName (if known), taskSummary (brief description of what the skill was used for), outcome (completed|partial|failed|abandoned), errors (array of error descriptions), userCorrections (count of times user corrected the skill's output), notes (any relevant context). Create the .claude/skill-evolution/ directory if it does not exist. If no Skill tool was used in this session, do nothing."
+          }
+        ]
+      }
+    ]
+  }
+}

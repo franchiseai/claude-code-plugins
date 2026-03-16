@@ -64,6 +64,12 @@
       "source": "./plugins/security-sweep",
       "description": "Run a security audit of the codebase and produce a prioritised findings report",
       "version": "1.0.0"
+    },
+    {
+      "name": "skill-evolution",
+      "source": "./plugins/skill-evolution",
+      "description": "Self-improving skill system — observe, inspect, and amend skills based on usage evidence",
+      "version": "1.0.0"
     }
   ]
 }
