@@ -1,0 +1,191 @@
+---
+name: content-generator
+description: >-
+  Generate valid JSON import files for the FSAI applicant portal and email sequences.
+  Use when asked to "generate content", "content generator", "portal json", "sequences json",
+  "fsai content", "brand onboarding content", or when working with FSAI brand onboarding.
+user_invocable: true
+---
+
+# FSAI Content Generator
+
+This skill helps you generate valid JSON import files for the FSAI applicant portal and email sequences. The output is consumed by the FSAI backend's content import endpoints.
+
+---
+
+## Workflow
+
+1. **Setup** — If `metadata/` and `output/` directories don't exist in the current workspace, create them.
+
+2. **Metadata check** — Look for a `metadata/*.json` file. If none is found, tell the user:
+   > "No metadata file found. Export one from the FSAI admin panel and place it in `metadata/`. The file contains brand info, available forms, and uploaded assets needed to generate valid content."
+
+3. **Read metadata** — Read the `metadata/*.json` file to understand the brand context: name, available forms, uploaded assets (with their UUIDs), and existing portal/sequence counts.
+
+4. **Generate content** — Based on the user's request, generate `output/portal.json` and/or `output/sequences.json` following the schemas and rules below. Use real asset IDs and form names from the metadata — never invent them.
+
+5. **Validate** — After generating output files:
+   - Copy the validator to the workspace root if not already present:
+     ```bash
+     cp "${CLAUDE_PLUGIN_ROOT}/skills/content-generator/references/validate.ts" ./validate.ts
+     ```
+   - Run validation:
+     ```bash
+     npx tsx validate.ts
+     ```
+   - If there are errors: fix them and re-validate
+   - If there are only warnings: present output to the user with warnings noted
+
+6. **Output** — Files are written to `output/portal.json` and/or `output/sequences.json`.
+
+---
+
+## Portal JSON Schema (`output/portal.json`)
+
+```typescript
+interface ImportPortalJson {
+  /** Main title displayed at the top of the applicant portal */
+  title: string;
+  /** Subtitle displayed below the title */
+  subtitle: string;
+  /** Ordered list of portal sections */
+  sections: ImportPortalSectionJson[];
+}
+
+interface ImportPortalSectionJson {
+  /** Section heading */
+  title: string;
+  /** Optional section description */
+  subtitle?: string;
+  /** Optional emoji shown next to the section title */
+  emoji?: string;
+  /** Ordered list of steps within this section */
+  steps: ImportPortalStepJson[];
+}
+
+interface ImportPortalStepJson {
+  /** Step heading shown to the applicant */
+  title: string;
+  /** Step description / instructions */
+  subtitle: string;
+  /** The type of interaction this step presents */
+  action:
+    | 'video'          // Embedded video player (requires assetId referencing a video asset)
+    | 'form'           // Dynamic form (requires formName matching an available form)
+    | 'slides'         // PDF/image slides viewer
+    | 'studio_slides'  // Interactive slide deck from the studio (requires assetId referencing a slide asset)
+    | 'call'           // Schedule a call (Calendly or similar)
+    | 'sign'           // E-signature document
+    | 'document'       // Downloadable document
+    | 'visit_link'     // External link (requires url)
+    | 'upload'         // File upload prompt
+    | 'invite_team';   // Invite team members step
+
+  /** Form name to bind to (required for action: 'form'). Must match a name from metadata availableForms. */
+  formName?: string | null;
+
+  /** Asset UUID to bind to (required for action: 'video' and 'studio_slides'). Must match an assetId from metadata assets. */
+  assetId?: string;
+
+  /** Whether completing this step creates a deal in the pipeline */
+  createsDeal?: boolean;
+
+  /** Whether this step is the FDD (Franchise Disclosure Document) step */
+  isFdd?: boolean;
+
+  /** Whether this step is hidden from the applicant by default */
+  hidden?: boolean;
+
+  /** URL for visit_link steps or fallback video URL */
+  url?: string | null;
+
+  /** Arbitrary JSON data attached to the step (rarely used) */
+  json?: unknown | null;
+}
+```
+
+---
+
+## Sequences JSON Schema (`output/sequences.json`)
+
+```typescript
+interface ImportSequencesJson {
+  /** List of email sequences to create */
+  sequences: ImportSequenceJson[];
+}
+
+interface ImportSequenceJson {
+  /** Display name of the sequence (e.g., "Welcome Series", "FDD Follow-up") */
+  name: string;
+  /** Event trigger that starts this sequence (e.g., "welcome", "post_application", "fdd_followup") */
+  event: string;
+  /** Department that owns this sequence */
+  department: 'sales' | 'marketing' | 'operations';
+  /** Ordered list of emails in this sequence */
+  emails: ImportSequenceEmailJson[];
+}
+
+interface ImportSequenceEmailJson {
+  /** Internal name for this email template */
+  name: string;
+  /** Email subject line (supports {{firstName}} and other merge tags) */
+  subjectLine: string;
+  /** Email body in Markdown format. Supports basic formatting: headers, bold, italic, links, lists. */
+  bodyMarkdown: string;
+  /** Number of days to wait after the previous email (or after the trigger event for the first email). Must be >= 0. */
+  delayDays: number;
+}
+```
+
+---
+
+## Metadata Schema
+
+The metadata file (`metadata/*.json`) exported from the FSAI admin panel has this structure:
+
+- **`brand`** — `name`, `website`, `portalDomain`, `apTitle`, `apSubtitle`
+- **`availableForms[]`** — `id`, `name`, `fields` (array of field names)
+- **`assets.portalSlides[]`** — `assetId` (UUID), `name`, `createdAt`
+- **`assets.portalVideos[]`** — `assetId` (UUID), `name`, `duration`, `createdAt`
+- **`assets.other[]`** — `assetId` (UUID), `name`, `fileType`
+- **`existingPortal`** — `sectionCount`, `stepCount` (what the brand already has)
+- **`existingSequences`** — `campaignCount` (what the brand already has)
+- **`sequenceEventExamples[]`** — Standard event names (e.g., `"welcome"`, `"post_application"`, `"fdd_followup"`). Non-standard events produce validator warnings but are allowed.
+
+---
+
+## Asset Reference Rules
+
+These rules are enforced by the validator and the backend import service.
+
+### Required asset references
+
+- Every `studio_slides` step **MUST** have an `assetId` that matches a UUID from `metadata.assets.portalSlides`
+- Every `video` step **MUST** have an `assetId` that matches a UUID from `metadata.assets.portalVideos`
+- Asset IDs must exactly match the UUIDs from the metadata file (copy-paste them, never invent them)
+
+### Form references
+
+- Every `form` step **SHOULD** have a `formName` that matches the `name` field of an entry in `metadata.availableForms`
+- If no matching form exists, the step will be created but the form will not be linked
+
+### Asset type matching
+
+- `studio_slides` steps must reference slide assets (from `portalSlides`), not video assets
+- `video` steps must reference video assets (from `portalVideos`), not slide assets
+- `slides` steps do not require an `assetId` (they use uploaded PDF/images, not studio assets)
+- Other asset types from `metadata.assets.other` can be referenced but are not typically used in portal steps
+
+### Action-specific fields
+
+- `visit_link` steps should include a `url` field
+
+---
+
+## Valid Step Actions
+
+`video`, `form`, `slides`, `studio_slides`, `call`, `sign`, `document`, `visit_link`, `upload`, `invite_team`
+
+## Valid Departments
+
+`sales`, `marketing`, `operations`
