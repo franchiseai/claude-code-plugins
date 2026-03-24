@@ -1,0 +1,9 @@
+{
+  "name": "fsai-workflow-actions",
+  "version": "0.2.0",
+  "description": "FSAI workflow actions and content generation tools",
+  "author": {
+    "name": "Bill"
+  },
+  "keywords": ["fsai", "workflow", "automation", "code-generation", "content-generator", "onboarding"]
+}
