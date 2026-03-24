@@ -15,6 +15,7 @@ Claude Code plugins for code quality and development workflows.
 /plugin install architecture-refactor@fsai
 /plugin install entity-graph@fsai
 /plugin install ux-flows@fsai
+/plugin install fsai-workflow-actions@fsai
 ```
 
 ## Plugins
@@ -157,6 +158,29 @@ Turn meeting notes and technical specs into clean UX flow docs for design teams.
 - "Design handoff doc for the onboarding feature"
 
 Claude will strip implementation details and layout prescriptions, keep edge cases and states, and output a ~1 page doc in user-facing language.
+
+---
+
+### fsai-workflow-actions
+
+FSAI workflow actions and content generation tools. Includes a content generator skill that helps produce valid JSON import files for the FSAI applicant portal and email sequences.
+
+**Usage:** Just ask Claude Code:
+
+- "Generate portal JSON for this brand"
+- "Create email sequences"
+- "FSAI content generator"
+
+Or invoke directly with `/content-generator`.
+
+**Prerequisites:** Export a brand metadata JSON from the FSAI admin panel and place it in `metadata/` in your workspace. The skill reads asset IDs, form names, and brand context from this file.
+
+**What it does:**
+
+1. Reads brand metadata (assets, forms, brand info)
+2. Guides content generation following the portal and sequence JSON schemas
+3. Validates output with a bundled `validate.ts` script
+4. Catches broken asset references, invalid form names, and schema errors before import
 
 ---
 

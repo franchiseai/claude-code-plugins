@@ -1,0 +1,42 @@
+{
+  "brand": {
+    "name": "The CodFather",
+    "website": null,
+    "portalDomain": "codfather.franchise.local",
+    "apTitle": "The CodFather Franchise Opportunity",
+    "apSubtitle": "Bring the Freshest Catch to Your Community"
+  },
+  "availableForms": [
+    {
+      "id": "63332cc4-c28c-43d4-8adb-225bb2771f69",
+      "name": "Restaurant Experience Survey",
+      "fields": ["Restaurant Experience", "Restaurant Types", "Restaurant Experience Description"]
+    }
+  ],
+  "assets": {
+    "portalSlides": [
+      {
+        "assetId": "50318679-bd28-43bf-9e0c-b93e03047e99",
+        "name": "Team Stand-Up_ 03_21_2025.pptx",
+        "createdAt": "2026-03-24 06:55:20.33686"
+      }
+    ],
+    "portalVideos": [
+      {
+        "assetId": "3ac0469c-c05e-438d-9098-93c7c998233b",
+        "name": "nice-blue-drop.mp4",
+        "duration": null,
+        "createdAt": "2026-03-24 06:55:26.49958"
+      }
+    ],
+    "other": [
+      { "assetId": "8b8ce188-9a66-4bdd-9e6e-420ae750fe92", "name": "Codfather Banner", "fileType": "image/png" },
+      { "assetId": "e8d8631e-86d9-459b-b90a-480fc27ae6af", "name": "Franchise Disclosure Document", "fileType": "application/pdf" }
+    ]
+  },
+  "existingPortal": { "sectionCount": 1, "stepCount": 0 },
+  "existingSequences": { "campaignCount": 3 },
+  "validStepActions": ["video", "form", "slides", "studio_slides", "call", "sign", "document", "visit_link", "upload", "invite_team"],
+  "validDepartments": ["sales", "marketing", "operations"],
+  "sequenceEventExamples": ["welcome", "post_application", "fdd_followup", "discovery_day", "award", "post_award", "nurture"]
+}

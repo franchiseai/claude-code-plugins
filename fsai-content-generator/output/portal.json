@@ -1,0 +1,57 @@
+{
+  "title": "The CodFather Franchise Opportunity",
+  "subtitle": "Bring the Freshest Catch to Your Community",
+  "sections": [
+    {
+      "title": "Get to Know Us",
+      "subtitle": "Learn about The CodFather brand",
+      "emoji": "🐟",
+      "steps": [
+        {
+          "title": "Welcome to The CodFather",
+          "subtitle": "Watch a quick introduction to our brand and what makes us different",
+          "action": "video",
+          "assetId": "3ac0469c-c05e-438d-9098-93c7c998233b"
+        },
+        {
+          "title": "Our Franchise Model",
+          "subtitle": "Explore our interactive deck covering territory, investment, and support",
+          "action": "studio_slides",
+          "assetId": "50318679-bd28-43bf-9e0c-b93e03047e99"
+        }
+      ]
+    },
+    {
+      "title": "Your Application",
+      "subtitle": "Tell us about yourself",
+      "emoji": "📋",
+      "steps": [
+        {
+          "title": "Restaurant Experience",
+          "subtitle": "Share your background in the restaurant industry",
+          "action": "form",
+          "formName": "Restaurant Experience Survey"
+        },
+        {
+          "title": "Schedule a Discovery Call",
+          "subtitle": "Book a time to speak with our franchise development team",
+          "action": "call"
+        }
+      ]
+    },
+    {
+      "title": "Next Steps",
+      "subtitle": "Finalize your franchise journey",
+      "emoji": "🚀",
+      "steps": [
+        {
+          "title": "Review the Franchise Disclosure Document",
+          "subtitle": "Carefully review our FDD before moving forward",
+          "action": "sign",
+          "isFdd": true,
+          "createsDeal": true
+        }
+      ]
+    }
+  ]
+}

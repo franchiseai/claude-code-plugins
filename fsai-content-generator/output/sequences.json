@@ -1,0 +1,55 @@
+{
+  "sequences": [
+    {
+      "name": "Welcome Series",
+      "event": "welcome",
+      "department": "sales",
+      "emails": [
+        {
+          "name": "Welcome - Day 0",
+          "subjectLine": "Welcome to The CodFather franchise journey, {{firstName}}!",
+          "bodyMarkdown": "Hi {{firstName}},\n\nThank you for your interest in The CodFather! We're excited to have you exploring our franchise opportunity.\n\nYour portal is now live — log in anytime to learn more about our brand and take the next steps.\n\nLooking forward to connecting with you!\n\n**The CodFather Franchise Team**",
+          "delayDays": 0
+        },
+        {
+          "name": "Welcome - Day 3",
+          "subjectLine": "Have you had a chance to explore your portal?",
+          "bodyMarkdown": "Hi {{firstName}},\n\nJust checking in — have you had a chance to review the materials in your franchise portal?\n\nWe've put together videos, presentations, and all the information you need to make an informed decision about The CodFather.\n\nIf you have any questions, don't hesitate to reach out.\n\nBest,\n**The CodFather Franchise Team**",
+          "delayDays": 3
+        }
+      ]
+    },
+    {
+      "name": "Post Application Follow-up",
+      "event": "post_application",
+      "department": "sales",
+      "emails": [
+        {
+          "name": "Application Received",
+          "subjectLine": "We received your application, {{firstName}}!",
+          "bodyMarkdown": "Hi {{firstName}},\n\nGreat news — we've received your application for a CodFather franchise.\n\nOur team will review your information and get back to you within 2 business days. In the meantime, feel free to continue exploring your portal.\n\nThank you for taking this step!\n\n**The CodFather Franchise Team**",
+          "delayDays": 0
+        }
+      ]
+    },
+    {
+      "name": "FDD Follow-up",
+      "event": "fdd_followup",
+      "department": "operations",
+      "emails": [
+        {
+          "name": "FDD Reminder",
+          "subjectLine": "Your FDD is ready for review, {{firstName}}",
+          "bodyMarkdown": "Hi {{firstName}},\n\nJust a reminder that your Franchise Disclosure Document is waiting for your review in the portal.\n\nThis is an important step in the process — please take the time to read through it carefully. If you have any questions about the document, we're happy to walk through it with you.\n\nBest,\n**The CodFather Franchise Team**",
+          "delayDays": 0
+        },
+        {
+          "name": "FDD Follow-up - Day 5",
+          "subjectLine": "Any questions about the FDD?",
+          "bodyMarkdown": "Hi {{firstName}},\n\nWe wanted to follow up on the Franchise Disclosure Document. We know it's a lot of information — that's why we're here to help.\n\nWould you like to schedule a call to discuss any questions you might have?\n\nLooking forward to hearing from you,\n**The CodFather Franchise Team**",
+          "delayDays": 5
+        }
+      ]
+    }
+  ]
+}
