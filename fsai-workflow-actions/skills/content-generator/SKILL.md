@@ -197,14 +197,73 @@ These rules are enforced by the validator and the backend import service.
 
 ## Tracking Links in Emails
 
-When generating email sequences, use the tracking link URLs from `metadata.trackingLinks` instead of raw portal URLs. This enables click analytics.
+When generating email sequences, use tracking link placeholders instead of raw portal URLs. These are resolved to actual tracking URLs during import, enabling click analytics.
 
-- **Return to portal**: Use `trackingLinks.returnToPortal.url` for "View your portal" CTAs
-- **Sign up link**: Use `trackingLinks.portalSignUp.url` for signup/registration CTAs
+### Shorthand Syntax (Recommended)
 
-Example in `bodyMarkdown`:
+| Placeholder | Resolves To |
+|-------------|-------------|
+| `{{link:portal}}` | Tracking URL for return to portal |
+| `{{link:signup}}` | Tracking URL for signup page |
+
+Example:
 ```markdown
-[Continue your application]({{trackingLinks.portalSignUp.url}})
+[Return to your portal]({{link:portal}})
+
+[Complete your application]({{link:signup}})
 ```
 
-If `trackingLinks` is `null`, fall back to constructing URLs from `brand.portalDomain`.
+### Verbose Syntax
+
+Also supported for backward compatibility:
+- `{{trackingLinks.returnToPortal.url}}`
+- `{{trackingLinks.portalSignUp.url}}`
+
+### Fallback Behavior
+
+If tracking links don't exist for the brand (e.g., portal domain not set), placeholders remain unchanged. The email editor will show the literal placeholder text, which can be manually replaced.
+
+---
+
+## Merge Tags in Emails
+
+Merge tags allow you to personalize email content with recipient data. They are converted to interactive variable nodes in the email editor.
+
+### Available Merge Tags
+
+| Tag | Description |
+|-----|-------------|
+| `{{first_name}}` | Recipient's first name |
+| `{{last_name}}` | Recipient's last name |
+| `{{email}}` | Recipient's email address |
+| `{{phone}}` | Recipient's phone number |
+
+### Fallback Syntax
+
+Use fallback values for when recipient data is missing:
+
+```
+{{first_name,fallback=Friend}}
+{{last_name,fallback=Valued Customer}}
+```
+
+The fallback value appears if the merge tag has no data for that recipient.
+
+### Where Merge Tags Work
+
+Merge tags can be used in:
+- **Subject lines**: `"Welcome {{first_name}}!"`
+- **Body text**: Paragraphs, headings, lists
+- **Inside formatting**: `**Hello {{first_name}}!**` (bold text with merge tag)
+- **Near links**: `{{first_name}}, [click here](url) to continue`
+
+### Example Email with Merge Tags
+
+```json
+{
+  "name": "Welcome Email",
+  "subjectLine": "Welcome {{first_name}}!",
+  "bodyMarkdown": "# Hello {{first_name,fallback=there}}!\n\nThank you for your interest.\n\nWe'll send updates to **{{email}}**.\n\n[View your portal]({{link:portal}})\n\nBest,\nThe Team",
+  "delayDays": 0
+}
+```
