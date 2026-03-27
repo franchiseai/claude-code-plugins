@@ -151,6 +151,9 @@ The metadata file (`metadata/*.json`) exported from the FSAI admin panel has thi
 - **`existingPortal`** — `sectionCount`, `stepCount` (what the brand already has)
 - **`existingSequences`** — `campaignCount` (what the brand already has)
 - **`sequenceEventExamples[]`** — Standard event names (e.g., `"welcome"`, `"post_application"`, `"fdd_followup"`). Non-standard events produce validator warnings but are allowed.
+- **`trackingLinks`** — Pre-created tracking links for use in email content (or `null` if not yet created)
+  - `returnToPortal` — `slug`, `url` (tracking URL), `destination` (final URL)
+  - `portalSignUp` — `slug`, `url` (tracking URL), `destination` (final URL)
 
 ---
 
@@ -189,3 +192,19 @@ These rules are enforced by the validator and the backend import service.
 ## Valid Departments
 
 `sales`, `marketing`, `operations`
+
+---
+
+## Tracking Links in Emails
+
+When generating email sequences, use the tracking link URLs from `metadata.trackingLinks` instead of raw portal URLs. This enables click analytics.
+
+- **Return to portal**: Use `trackingLinks.returnToPortal.url` for "View your portal" CTAs
+- **Sign up link**: Use `trackingLinks.portalSignUp.url` for signup/registration CTAs
+
+Example in `bodyMarkdown`:
+```markdown
+[Continue your application]({{trackingLinks.portalSignUp.url}})
+```
+
+If `trackingLinks` is `null`, fall back to constructing URLs from `brand.portalDomain`.
