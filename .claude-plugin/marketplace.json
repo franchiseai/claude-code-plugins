@@ -70,6 +70,12 @@
       "source": "./plugins/skill-evolution",
       "description": "Self-improving skill system — observe, inspect, and amend skills based on usage evidence",
       "version": "1.0.0"
+    },
+    {
+      "name": "fsai-workflow-actions",
+      "source": "./fsai-workflow-actions",
+      "description": "FSAI workflow actions and content generation tools",
+      "version": "0.2.0"
     }
   ]
 }
