@@ -1,15 +1,15 @@
 ---
 name: content-generator
 description: >-
-  Generate valid JSON import files for the FSAI applicant portal and email sequences.
+  Generate valid JSON import files for the FSAI applicant portal, custom forms, and email sequences.
   Use when asked to "generate content", "content generator", "portal json", "sequences json",
-  "fsai content", "brand onboarding content", or when working with FSAI brand onboarding.
+  "forms json", "fsai content", "brand onboarding content", or when working with FSAI brand onboarding.
 user_invocable: true
 ---
 
 # FSAI Content Generator
 
-This skill helps you generate valid JSON import files for the FSAI applicant portal and email sequences. The output is consumed by the FSAI backend's content import endpoints.
+This skill helps you generate valid JSON import files for the FSAI applicant portal, custom forms, and email sequences. The output is consumed by the FSAI backend's content import endpoints.
 
 ---
 
@@ -22,7 +22,9 @@ This skill helps you generate valid JSON import files for the FSAI applicant por
 
 3. **Read metadata** — Read the `metadata/*.json` file to understand the brand context: name, available forms, uploaded assets (with their UUIDs), and existing portal/sequence counts.
 
-4. **Generate content** — Based on the user's request, generate `output/portal.json` and/or `output/sequences.json` following the schemas and rules below. Use real asset IDs and form names from the metadata — never invent them.
+4. **Generate content** — Based on the user's request, generate `output/forms.json` (optional), `output/portal.json`, and/or `output/sequences.json` following the schemas and rules below. Use real asset IDs and form names from the metadata — never invent them. Only generate `forms.json` if the brand needs custom forms beyond the defaults.
+
+> **Important:** If generating `forms.json`, it must be uploaded and imported BEFORE generating `portal.json` and `sequences.json`. After form import, the super admin should re-export metadata so that portal generation can reference the newly created forms by name.
 
 5. **Validate** — After generating output files:
    - Copy the validator to the workspace root if not already present:
@@ -36,7 +38,7 @@ This skill helps you generate valid JSON import files for the FSAI applicant por
    - If there are errors: fix them and re-validate
    - If there are only warnings: present output to the user with warnings noted
 
-6. **Output** — Files are written to `output/portal.json` and/or `output/sequences.json`.
+6. **Output** — Files are written to `output/forms.json` (optional), `output/portal.json`, and/or `output/sequences.json`.
 
 ---
 
@@ -106,6 +108,69 @@ interface ImportPortalStepJson {
 
 ---
 
+## Forms JSON Schema (`output/forms.json`)
+
+```typescript
+interface ImportFormsJson {
+  /** List of custom forms to create */
+  forms: ImportFormJson[];
+}
+
+interface ImportFormJson {
+  /** Display name of the form */
+  name: string;
+  /** Optional description */
+  description?: string;
+  /** Which entity type this form collects data for */
+  appliesTo: 'user' | 'franchisee-org' | 'location';
+  /** Optional group name — creates or matches an existing form group */
+  groupName?: string;
+  /** Ordered list of pages in this form */
+  pages: ImportFormPageJson[];
+}
+
+interface ImportFormPageJson {
+  /** Page heading */
+  title: string;
+  /** Optional page description */
+  subtitle?: string;
+  /** New custom fields to create on this page */
+  fields: ImportFormFieldJson[];
+  /** Field names from default forms to move into this page */
+  useExistingFields?: string[];
+}
+
+interface ImportFormFieldJson {
+  /** Internal field name */
+  name: string;
+  /** Display text shown to the user */
+  question: string;
+  /** Additional help text */
+  description?: string;
+  /** Input placeholder text */
+  placeholder?: string;
+  /** Field input type */
+  type: 'short-text' | 'long-text' | 'currency' | 'number' | 'date' | 'url'
+    | 'email' | 'phone' | 'multiselect' | 'singleselect' | 'boolean' | 'dropdown';
+  /** Whether the field is required (default false) */
+  required?: boolean;
+  /** Options for multiselect, singleselect, and dropdown types */
+  options?: string[];
+}
+```
+
+### Form Generation Rules
+
+1. **Never set `dataLocation`** — imported fields are always custom. Only default fields have dataLocation.
+2. **Use `useExistingFields`** to reference default fields from metadata by name rather than recreating them. This moves the field from its default form into your custom form.
+3. **Check metadata first** — read `metadata.availableForms[].pages[].fields[]` to see what questions are already collected. Don't duplicate them.
+4. **Fields with `dataLocation`** in metadata are default fields that map to database columns. Reference them via `useExistingFields` if you want them in a custom form.
+5. **Fields without `dataLocation`** are custom fields stored as JSON.
+6. **`appliesTo` scoping** — `user` for applicant/member data, `franchisee-org` for business entity data, `location` for location-specific data.
+7. **Group related questions** into pages logically (e.g., "Personal Details", "Business Background").
+
+---
+
 ## Sequences JSON Schema (`output/sequences.json`)
 
 ```typescript
@@ -144,7 +209,7 @@ interface ImportSequenceEmailJson {
 The metadata file (`metadata/*.json`) exported from the FSAI admin panel has this structure:
 
 - **`brand`** — `name`, `website`, `portalDomain`, `apTitle`, `apSubtitle`
-- **`availableForms[]`** — `id`, `name`, `fields` (array of field names)
+- **`availableForms[]`** — `id`, `name`, `appliesTo`, `groupName`, plus `pages[]` each with `title` and `fields[]`. Each field has: `name`, `question`, `type`, `required`, `description`, `options`, `dataLocation`. Use this to understand what data is already being collected and which fields can be referenced via `useExistingFields`.
 - **`assets.portalSlides[]`** — `assetId` (UUID), `name`, `createdAt`
 - **`assets.portalVideos[]`** — `assetId` (UUID), `name`, `duration`, `createdAt`
 - **`assets.other[]`** — `assetId` (UUID), `name`, `fileType`
