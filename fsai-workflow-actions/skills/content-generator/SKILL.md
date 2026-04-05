@@ -9,36 +9,63 @@ user_invocable: true
 
 # FSAI Content Generator
 
-This skill helps you generate valid JSON import files for the FSAI applicant portal, custom forms, and email sequences. The output is consumed by the FSAI backend's content import endpoints.
+This skill generates valid JSON import files for the FSAI applicant portal, custom forms, and email sequences. The output is consumed by the FSAI backend's content import endpoints.
 
 ---
 
-## Workflow
+## Guided Workflow
+
+Content generation follows a **three-phase process**. Each phase builds on the previous one because later phases reference content created in earlier phases.
+
+### Phase 1: Custom Forms (`output/forms.json`)
+
+**Why first:** Custom forms must be imported into the platform before the portal can reference them. The portal's `formName` fields must match forms that actually exist.
 
 1. **Setup** — If `metadata/` and `output/` directories don't exist in the current workspace, create them.
 
-2. **Metadata check** — Look for a `metadata/*.json` file. If none is found, tell the user:
+2. **Metadata check** — Look for a `metadata/*.json` file. If none found, tell the user:
    > "No metadata file found. Export one from the FSAI admin panel and place it in `metadata/`. The file contains brand info, available forms, and uploaded assets needed to generate valid content."
 
-3. **Read metadata** — Read the `metadata/*.json` file to understand the brand context: name, available forms, uploaded assets (with their UUIDs), and existing portal/sequence counts.
+3. **Read metadata** — Examine `metadata.availableForms` to understand what default forms already exist (fields with `dataLocation` are defaults, those without are custom). Identify gaps — what additional questions does this brand need that aren't covered by defaults?
 
-4. **Generate content** — Based on the user's request, generate `output/forms.json` (optional), `output/portal.json`, and/or `output/sequences.json` following the schemas and rules below. Use real asset IDs and form names from the metadata — never invent them. Only generate `forms.json` if the brand needs custom forms beyond the defaults.
+4. **Generate `output/forms.json`** — Create custom forms following the Forms JSON Schema below. Use `useExistingFields` to pull default fields into custom form pages where it makes sense. Never set `dataLocation` on new fields. Skip this phase if the brand only needs the default forms.
 
-> **Important:** If generating `forms.json`, it must be uploaded and imported BEFORE generating `portal.json` and `sequences.json`. After form import, the super admin should re-export metadata so that portal generation can reference the newly created forms by name.
+5. **Validate** — Copy the validator and run it:
+   ```bash
+   cp "${CLAUDE_PLUGIN_ROOT}/skills/content-generator/references/validate.ts" ./validate.ts
+   npx tsx validate.ts
+   ```
 
-5. **Validate** — After generating output files:
-   - Copy the validator to the workspace root if not already present:
-     ```bash
-     cp "${CLAUDE_PLUGIN_ROOT}/skills/content-generator/references/validate.ts" ./validate.ts
-     ```
-   - Run validation:
-     ```bash
-     npx tsx validate.ts
-     ```
-   - If there are errors: fix them and re-validate
-   - If there are only warnings: present output to the user with warnings noted
+6. **Hand off to user** — Present the forms.json and tell them:
+   > "Import this forms.json via the super admin panel, then **re-export the metadata** so the next phase can reference the newly created forms by name."
 
-6. **Output** — Files are written to `output/forms.json` (optional), `output/portal.json`, and/or `output/sequences.json`.
+**Wait for the user to provide updated metadata before proceeding to Phase 2.**
+
+### Phase 2: Portal (`output/portal.json`)
+
+**Why second:** The portal references forms by name. With the updated metadata (which now includes custom forms from Phase 1), all `formName` references will validate correctly.
+
+1. **Read updated metadata** — The user should have placed a fresh metadata export in `metadata/`. Read it to see all available forms (defaults + newly imported custom forms), assets, and brand context.
+
+2. **Generate `output/portal.json`** — Build the portal sections and steps following the Portal JSON Schema below. Reference both default and custom form names. Use real asset IDs from metadata for video/slide steps.
+
+3. **Validate** — Run `npx tsx validate.ts` and fix any errors.
+
+4. **Present to user** — Show the portal structure. They can import it via the super admin panel.
+
+### Phase 3: Email Sequences (`output/sequences.json`)
+
+**Why last:** Sequences are independent of forms/portal but are typically generated in the same session.
+
+1. **Generate `output/sequences.json`** — Create email sequences following the Sequences JSON Schema below. Use tracking link placeholders and merge tags.
+
+2. **Validate** — Run `npx tsx validate.ts` and fix any errors.
+
+3. **Present to user** — Show the sequences. They can import them via the super admin panel.
+
+### Shortcut: Single-phase generation
+
+If the user only needs one file type (e.g., "just generate the portal"), skip the other phases. If they ask for everything at once and custom forms aren't needed, generate portal and sequences together. The phased workflow only matters when custom forms are involved, because forms must exist in the platform before the portal can reference them.
 
 ---
 

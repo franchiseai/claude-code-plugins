@@ -1,13 +1,27 @@
 # Content Generator for FSAI
 
-This tool generates JSON import files for the Franchise Systems AI applicant portal and email sequences. The output is consumed by the FSAI backend's content import endpoints.
+This tool generates JSON import files for the Franchise Systems AI applicant portal, custom forms, and email sequences. The output is consumed by the FSAI backend's content import endpoints.
 
-## Workflow
+## Guided Workflow (Three Phases)
 
-1. Read the metadata file in `metadata/*.json` (exported from the FSAI admin panel for a specific brand)
-2. Generate `output/portal.json` and/or `output/sequences.json` based on brand context
-3. Run `npx tsx validate.ts` and fix any errors before presenting output
-4. Output files go in `output/portal.json` and `output/sequences.json`
+Content generation follows a phased process. Each phase builds on the previous one.
+
+### Phase 1: Custom Forms (`output/forms.json`)
+1. Read metadata to understand existing default forms (fields with `dataLocation`)
+2. Generate `output/forms.json` with custom forms that fill gaps not covered by defaults
+3. Run `npx tsx validate.ts` and fix any errors
+4. **User imports forms.json via super admin, then re-exports metadata**
+
+### Phase 2: Portal (`output/portal.json`)
+1. Read the **updated** metadata (now includes custom forms from Phase 1)
+2. Generate `output/portal.json` referencing both default and custom form names
+3. Run `npx tsx validate.ts` and fix any errors
+
+### Phase 3: Email Sequences (`output/sequences.json`)
+1. Generate `output/sequences.json` with email sequences
+2. Run `npx tsx validate.ts` and fix any errors
+
+> **Shortcut:** If no custom forms are needed, skip Phase 1 and generate portal + sequences together.
 
 ---
 
@@ -74,6 +88,67 @@ interface ImportPortalStepJson {
   json?: unknown | null;
 }
 ```
+
+## Forms JSON Schema (`output/forms.json`)
+
+```typescript
+interface ImportFormsJson {
+  /** List of custom forms to create */
+  forms: ImportFormJson[];
+}
+
+interface ImportFormJson {
+  /** Display name of the form */
+  name: string;
+  /** Optional description */
+  description?: string;
+  /** Which entity type this form collects data for */
+  appliesTo: 'user' | 'franchisee-org' | 'location';
+  /** Optional group name — creates or matches an existing form group */
+  groupName?: string;
+  /** Ordered list of pages in this form */
+  pages: ImportFormPageJson[];
+}
+
+interface ImportFormPageJson {
+  /** Page heading */
+  title: string;
+  /** Optional page description */
+  subtitle?: string;
+  /** New custom fields to create on this page */
+  fields: ImportFormFieldJson[];
+  /** Field names from default forms to move into this page */
+  useExistingFields?: string[];
+}
+
+interface ImportFormFieldJson {
+  /** Internal field name */
+  name: string;
+  /** Display text shown to the user */
+  question: string;
+  /** Additional help text */
+  description?: string;
+  /** Input placeholder text */
+  placeholder?: string;
+  /** Field input type */
+  type: 'short-text' | 'long-text' | 'currency' | 'number' | 'date' | 'url'
+    | 'email' | 'phone' | 'multiselect' | 'singleselect' | 'boolean' | 'dropdown';
+  /** Whether the field is required (default false) */
+  required?: boolean;
+  /** Options for multiselect, singleselect, and dropdown types */
+  options?: string[];
+}
+```
+
+### Form Generation Rules
+
+1. **Never set `dataLocation`** — imported fields are always custom. Only default fields have dataLocation.
+2. **Use `useExistingFields`** to reference default fields from metadata by name rather than recreating them.
+3. **Check metadata first** — read `metadata.availableForms[].pages[].fields[]` to see what questions are already collected. Don't duplicate them.
+4. **Fields with `dataLocation`** in metadata are default fields that map to database columns. Reference them via `useExistingFields` if you want them in a custom form.
+5. **`appliesTo` scoping** — `user` for applicant/member data, `franchisee-org` for business entity data, `location` for location-specific data.
+
+---
 
 ## Sequences JSON Schema (`output/sequences.json`)
 

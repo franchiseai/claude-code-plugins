@@ -1,7 +1,7 @@
 /**
  * Content Generator Validator
  *
- * Validates portal.json and sequences.json against the metadata file
+ * Validates portal.json, forms.json, and sequences.json against the metadata file
  * to catch schema errors and broken asset/form references before import.
  *
  * Usage: npx tsx validate.ts
@@ -31,12 +31,46 @@ const VALID_ACTIONS = [
 
 const VALID_DEPARTMENTS = ['sales', 'marketing', 'operations'] as const;
 
+const VALID_FIELD_TYPES = [
+  'short-text',
+  'long-text',
+  'currency',
+  'number',
+  'date',
+  'url',
+  'email',
+  'phone',
+  'multiselect',
+  'singleselect',
+  'boolean',
+  'dropdown',
+] as const;
+
+const VALID_APPLIES_TO = ['user', 'franchisee-org', 'location'] as const;
+
 // ── Types (mirrors SDK types) ────────────────────────────────────────────────
+
+interface MetadataFormField {
+  name: string;
+  question: string;
+  type: string;
+  required: boolean;
+  description: string | null;
+  options: string[] | null;
+  dataLocation: string | null;
+}
+
+interface MetadataFormPage {
+  title: string;
+  fields: MetadataFormField[];
+}
 
 interface MetadataForm {
   id: string;
   name: string;
-  fields: string[];
+  appliesTo: string;
+  groupName: string;
+  pages: MetadataFormPage[];
 }
 
 interface MetadataSlideAsset {
@@ -108,6 +142,36 @@ interface PortalJson {
   title?: unknown;
   subtitle?: unknown;
   sections?: unknown;
+}
+
+interface FormField {
+  name?: unknown;
+  question?: unknown;
+  description?: unknown;
+  placeholder?: unknown;
+  type?: unknown;
+  required?: unknown;
+  options?: unknown;
+  dataLocation?: unknown;
+}
+
+interface FormPage {
+  title?: unknown;
+  subtitle?: unknown;
+  fields?: unknown;
+  useExistingFields?: unknown;
+}
+
+interface Form {
+  name?: unknown;
+  description?: unknown;
+  appliesTo?: unknown;
+  groupName?: unknown;
+  pages?: unknown;
+}
+
+interface FormsJson {
+  forms?: unknown;
 }
 
 interface SequenceEmail {
@@ -357,6 +421,176 @@ function validatePortal(portal: PortalJson, metadata: Metadata): void {
   }
 }
 
+// ── Forms Validation ────────────────────────────────────────────────────────
+
+function validateForms(forms: FormsJson, metadata: Metadata): void {
+  if (!Array.isArray(forms.forms)) {
+    error('Forms: "forms" is required and must be an array');
+    return;
+  }
+  if (forms.forms.length === 0) {
+    error('Forms: "forms" must contain at least one form');
+    return;
+  }
+
+  // Build a set of all existing field names from metadata for useExistingFields validation
+  const existingFieldNames = new Set<string>();
+  for (const form of metadata.availableForms) {
+    for (const page of form.pages || []) {
+      for (const field of page.fields || []) {
+        existingFieldNames.add(field.name);
+      }
+    }
+  }
+
+  const existingFormNames = new Set(metadata.availableForms.map((f) => f.name));
+
+  const formsList = forms.forms as Form[];
+  for (let fi = 0; fi < formsList.length; fi++) {
+    const form = formsList[fi];
+    const formName = typeof form.name === 'string' ? form.name : `#${fi + 1}`;
+    const fLabel = `Form "${formName}"`;
+
+    // Required fields
+    if (typeof form.name !== 'string' || form.name.length === 0) {
+      error(`${fLabel}: "name" is required and must be a non-empty string`);
+    }
+
+    // Check for duplicate with existing forms
+    if (typeof form.name === 'string' && existingFormNames.has(form.name)) {
+      warn(`${fLabel}: a form with this name already exists in metadata — import will create a duplicate`);
+    }
+
+    // appliesTo validation
+    if (typeof form.appliesTo !== 'string') {
+      error(`${fLabel}: "appliesTo" is required and must be a string`);
+    } else if (!(VALID_APPLIES_TO as readonly string[]).includes(form.appliesTo)) {
+      error(
+        `${fLabel}: invalid appliesTo "${form.appliesTo}". Must be one of: ${VALID_APPLIES_TO.join(', ')}`
+      );
+    }
+
+    // Optional string fields
+    if (form.description !== undefined && form.description !== null && typeof form.description !== 'string') {
+      error(`${fLabel}: "description" must be a string if provided`);
+    }
+    if (form.groupName !== undefined && form.groupName !== null && typeof form.groupName !== 'string') {
+      error(`${fLabel}: "groupName" must be a string if provided`);
+    }
+
+    // Pages
+    if (!Array.isArray(form.pages)) {
+      error(`${fLabel}: "pages" is required and must be an array`);
+      continue;
+    }
+    if (form.pages.length === 0) {
+      error(`${fLabel}: "pages" must contain at least one page`);
+      continue;
+    }
+
+    const pages = form.pages as FormPage[];
+    for (let pi = 0; pi < pages.length; pi++) {
+      const page = pages[pi];
+      const pLabel = `${fLabel}, Page ${pi + 1}`;
+
+      if (typeof page.title !== 'string' || page.title.length === 0) {
+        error(`${pLabel}: "title" is required and must be a non-empty string`);
+      }
+      if (page.subtitle !== undefined && page.subtitle !== null && typeof page.subtitle !== 'string') {
+        error(`${pLabel}: "subtitle" must be a string if provided`);
+      }
+
+      // Validate useExistingFields
+      if (page.useExistingFields !== undefined) {
+        if (!Array.isArray(page.useExistingFields)) {
+          error(`${pLabel}: "useExistingFields" must be an array if provided`);
+        } else {
+          const refs = page.useExistingFields as unknown[];
+          for (let ri = 0; ri < refs.length; ri++) {
+            const ref = refs[ri];
+            if (typeof ref !== 'string') {
+              error(`${pLabel}: useExistingFields[${ri}] must be a string`);
+            } else if (!existingFieldNames.has(ref)) {
+              error(
+                `${pLabel}: useExistingFields references "${ref}" but no field with that name exists in metadata`
+              );
+            }
+          }
+        }
+      }
+
+      // Fields are optional if useExistingFields is provided
+      if (page.fields === undefined || page.fields === null) {
+        if (!page.useExistingFields || (Array.isArray(page.useExistingFields) && page.useExistingFields.length === 0)) {
+          error(`${pLabel}: must have "fields" and/or "useExistingFields"`);
+        }
+        continue;
+      }
+
+      if (!Array.isArray(page.fields)) {
+        error(`${pLabel}: "fields" must be an array`);
+        continue;
+      }
+
+      const fields = page.fields as FormField[];
+      for (let ffi = 0; ffi < fields.length; ffi++) {
+        const field = fields[ffi];
+        const ffLabel = `${pLabel}, Field ${ffi + 1}`;
+
+        // Required fields
+        if (typeof field.name !== 'string' || field.name.length === 0) {
+          error(`${ffLabel}: "name" is required and must be a non-empty string`);
+        }
+        if (typeof field.question !== 'string' || field.question.length === 0) {
+          error(`${ffLabel}: "question" is required and must be a non-empty string`);
+        }
+
+        // Type validation
+        if (typeof field.type !== 'string') {
+          error(`${ffLabel}: "type" is required and must be a string`);
+        } else if (!(VALID_FIELD_TYPES as readonly string[]).includes(field.type)) {
+          error(
+            `${ffLabel}: invalid type "${field.type}". Must be one of: ${VALID_FIELD_TYPES.join(', ')}`
+          );
+        }
+
+        // dataLocation must NOT be set on imported fields
+        if (field.dataLocation !== undefined && field.dataLocation !== null) {
+          error(
+            `${ffLabel}: "dataLocation" must not be set on imported fields — only default fields have dataLocation. Use "useExistingFields" to reference default fields instead`
+          );
+        }
+
+        // Options required for select/dropdown types
+        const fieldType = typeof field.type === 'string' ? field.type : '';
+        if (['multiselect', 'singleselect', 'dropdown'].includes(fieldType)) {
+          if (!Array.isArray(field.options) || field.options.length === 0) {
+            error(`${ffLabel}: "options" is required and must be a non-empty array for type "${fieldType}"`);
+          } else {
+            const opts = field.options as unknown[];
+            for (let oi = 0; oi < opts.length; oi++) {
+              if (typeof opts[oi] !== 'string') {
+                error(`${ffLabel}: options[${oi}] must be a string`);
+              }
+            }
+          }
+        }
+
+        // Optional field type checks
+        if (field.required !== undefined && typeof field.required !== 'boolean') {
+          error(`${ffLabel}: "required" must be a boolean if provided`);
+        }
+        if (field.description !== undefined && field.description !== null && typeof field.description !== 'string') {
+          error(`${ffLabel}: "description" must be a string if provided`);
+        }
+        if (field.placeholder !== undefined && field.placeholder !== null && typeof field.placeholder !== 'string') {
+          error(`${ffLabel}: "placeholder" must be a string if provided`);
+        }
+      }
+    }
+  }
+}
+
 // ── Sequences Validation ─────────────────────────────────────────────────────
 
 function validateSequences(sequences: SequencesJson, metadata: Metadata): void {
@@ -453,16 +687,26 @@ function main(): void {
     process.exit(1);
   }
 
+  const formsPath = join(baseDir, 'output', 'forms.json');
   const portalPath = join(baseDir, 'output', 'portal.json');
   const sequencesPath = join(baseDir, 'output', 'sequences.json');
 
+  const hasForms = existsSync(formsPath);
   const hasPortal = existsSync(portalPath);
   const hasSequences = existsSync(sequencesPath);
 
-  if (!hasPortal && !hasSequences) {
-    error('No output files found. Expected output/portal.json and/or output/sequences.json');
+  if (!hasForms && !hasPortal && !hasSequences) {
+    error('No output files found. Expected output/forms.json, output/portal.json, and/or output/sequences.json');
     printResults();
     process.exit(1);
+  }
+
+  // Validate forms
+  if (hasForms) {
+    const forms = loadJson<FormsJson>(formsPath);
+    if (forms) {
+      validateForms(forms, metadata);
+    }
   }
 
   // Validate portal
