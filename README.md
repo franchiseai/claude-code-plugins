@@ -175,6 +175,18 @@ It never auto-triggers during normal feature development.
 
 ---
 
+### engine-retro
+
+Post-feature friction retro for AI Engine features. When a feature wraps, it mines the branch diff for workaround signatures (hacks, bypassed abstractions, copy-pasted boilerplate, special-casing in shared engine code), interviews the dev to catch uncommitted dead ends, and presents findings as "what the engine should offer" with proposed fixes drafted inline. Findings you approve become Linear tickets (`Engine DX: ...`). No ranking — you triage.
+
+**Usage:** Invoke deliberately when a feature wraps:
+
+- `/engine-retro <feature or branch>`
+
+Pairs with `ai-feature-loop`: loop the prompts during the build, retro the engine friction after.
+
+---
+
 ### fsai-workflow-actions
 
 FSAI workflow actions and content generation tools. Includes a content generator skill that helps produce valid JSON import files for the FSAI applicant portal and email sequences.

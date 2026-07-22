@@ -1,0 +1,10 @@
+{
+  "name": "engine-retro",
+  "version": "1.0.0",
+  "description": "Post-feature friction retro for the AI Engine — mine the diff for workarounds, interview the dev, and turn engine pain into Linear tickets with proposed fixes",
+  "author": {
+    "name": "Bill Smith",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}

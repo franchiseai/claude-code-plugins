@@ -78,6 +78,12 @@
       "version": "1.0.0"
     },
     {
+      "name": "engine-retro",
+      "source": "./plugins/engine-retro",
+      "description": "Post-feature friction retro for the AI Engine — mine the diff for workarounds, interview the dev, and turn engine pain into Linear tickets with proposed fixes",
+      "version": "1.0.0"
+    },
+    {
       "name": "fsai-workflow-actions",
       "source": "./fsai-workflow-actions",
       "description": "FSAI workflow actions and content generation tools",
