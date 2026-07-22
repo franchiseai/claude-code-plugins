@@ -161,6 +161,20 @@ Claude will strip implementation details and layout prescriptions, keep edge cas
 
 ---
 
+### ai-feature-loop
+
+Human-and-AI-in-the-loop quality improvement for AI Engine features. Runs trigger → observe → judge → improve batches: triggers real engine runs, judges the outputs against a rubric agreed up front, pushes verdicts as Langfuse scores, and iterates on prompt/recipe text one change at a time. Human reviews at batch boundaries; non-prompt changes (context assembly, model/params, feature code) queue for approval.
+
+**Usage:** Invoke deliberately with:
+
+- `/ai-feature-loop <feature>`
+
+It never auto-triggers during normal feature development.
+
+**Prerequisites:** The local rig must be up: backend (:4000), inngest dev server (:8288), Langfuse (:3005), and the `AI_ENGINE_DEV_MODEL` override set in `apps/backend/.env`. Loops run on the dev model — spot-check on the prod model before shipping.
+
+---
+
 ### fsai-workflow-actions
 
 FSAI workflow actions and content generation tools. Includes a content generator skill that helps produce valid JSON import files for the FSAI applicant portal and email sequences.

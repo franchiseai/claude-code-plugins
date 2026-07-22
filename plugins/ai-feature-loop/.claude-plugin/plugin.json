@@ -1,0 +1,10 @@
+{
+  "name": "ai-feature-loop",
+  "version": "1.0.0",
+  "description": "Human-and-AI-in-the-loop quality improvement for AI Engine features — trigger runs, judge Langfuse traces against a rubric, iterate on prompts",
+  "author": {
+    "name": "Bill Smith",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}

@@ -72,6 +72,12 @@
       "version": "1.0.0"
     },
     {
+      "name": "ai-feature-loop",
+      "source": "./plugins/ai-feature-loop",
+      "description": "Human-and-AI-in-the-loop quality improvement for AI Engine features — trigger runs, judge Langfuse traces against a rubric, iterate on prompts",
+      "version": "1.0.0"
+    },
+    {
       "name": "fsai-workflow-actions",
       "source": "./fsai-workflow-actions",
       "description": "FSAI workflow actions and content generation tools",
