@@ -26,8 +26,19 @@ Remove AI-generated patterns from code changes while preserving intentional func
 
 **Unnecessary comments**
 - Obvious comments (`// increment counter`, `// return the result`)
-- Section dividers inconsistent with file style
 - Comments explaining what code does rather than why
+- Commented-out code — delete it, git has it
+- TODOs with no owner or ticket (`// TODO: fix this later`)
+- `@param` / `@returns` that only restate the TypeScript signature
+- Section dividers inconsistent with file style
+
+In `apps/backend`, apply the repo's commenting standard rather than judging
+case by case: `docs/backend-commenting.md`. It sets a default of no comment
+with a short list of exceptions (non-obvious why, a workaround with its cause,
+a cross-file invariant, a type assertion, external spec/vendor behaviour, an
+entity predicate's business rule, test scenario setup). Read it before
+stripping comments from backend files — some of what looks like narration is a
+listed exception, and entity predicates are *required* to carry JSDoc.
 
 **Defensive overkill**
 - Try/catch blocks around code that can't throw or is already in trusted paths
