@@ -187,6 +187,27 @@ Pairs with `ai-feature-loop`: loop the prompts during the build, retro the engin
 
 ---
 
+### fsai-bulk-data
+
+Import and export FSAI brand data over the superadmin bulk API (`/fsai-admin/bulk`). Finds the brand id, fetches the agent doc for the entity, exports current records, authors an import envelope, posts it as a validation job, shows the plan, and commits only after you approve. Nothing is written until the commit step, and commit is blocked while any record is in error.
+
+**Usage:** Just ask Claude Code:
+
+- "Import these helpdesk articles into FSAI"
+- "Export brand data for Sunny Scoops"
+- "Bulk import lead statuses"
+- "Sync helpdesk articles"
+
+**Prerequisites:**
+
+1. A personal API key from the dashboard under Account > API key, on a superadmin account, exported as `FSAI_API_KEY`. One key per user; regenerating revokes the old one.
+2. API access unlocked by a superadmin in Admin > API Access, for the brand or the specific entity, at Read (doc and export) or Read + write (import). Windows relock automatically after 1, 4, 8, or 24 hours.
+3. Optionally `FSAI_API_URL`, which defaults to `https://api.franchisesystems.ai`.
+
+A 403 saying access is locked means the brand or that entity is not currently unlocked. The skill will name what it needs and stop rather than retry.
+
+---
+
 ### fsai-workflow-actions
 
 FSAI workflow actions and content generation tools. Includes a content generator skill that helps produce valid JSON import files for the FSAI applicant portal and email sequences.

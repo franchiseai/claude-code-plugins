@@ -1,0 +1,10 @@
+{
+  "name": "fsai-bulk-data",
+  "version": "1.0.0",
+  "description": "Import and export FSAI brand data over the superadmin bulk API with a validate, review, approve, commit loop",
+  "author": {
+    "name": "Bill Smith",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "MIT"
+}

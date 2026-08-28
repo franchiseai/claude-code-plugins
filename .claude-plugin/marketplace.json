@@ -84,6 +84,12 @@
       "version": "1.0.0"
     },
     {
+      "name": "fsai-bulk-data",
+      "source": "./plugins/fsai-bulk-data",
+      "description": "Import and export FSAI brand data over the superadmin bulk API with a validate, review, approve, commit loop",
+      "version": "1.0.0"
+    },
+    {
       "name": "fsai-workflow-actions",
       "source": "./fsai-workflow-actions",
       "description": "FSAI workflow actions and content generation tools",
