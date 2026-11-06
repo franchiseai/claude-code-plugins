@@ -84,14 +84,32 @@ The agent brief for one entity. Requires Read.
 
 ```json
 {
-  "schemaMarkdown": "markdown describing every field, constraints, and an exampleContent block",
+  "schemaMarkdown": "markdown describing every field, constraints, and an example envelope",
   "brandSnapshot": {}
 }
 ```
 
-`schemaMarkdown` is the authoritative field contract. `brandSnapshot` is live brand context that records can reference by natural key.
+`schemaMarkdown` is the authoritative field contract. It is generated at request time from
+the descriptor's Zod schema, the same schema the importer validates against, so it can never
+drift from the importer. Sections in order: `## Rules` (upsert by natural key or by `id`
+only, `$id` aliasing, how to reference an existing row), `## Fields` (field, type, required,
+description, and the descriptions carry the side effects), `### <path> items` for each
+nested object field, `## Allowed values` for every enum by dot path, and `## Example` with a
+full envelope of typed placeholders.
 
-Fetch this before authoring records, every time.
+`brandSnapshot` is live brand context that records can reference by natural key. Its shape is
+set per entity by the descriptor's `snapshot()` hook. It carries existing rows with real ids,
+valid vocabularies, prose notes (`identityNote`, `structureNote` and similar), and usually an
+`example` payload. Two real examples, fetched 2026-09-14:
+
+- `forms`: `fieldTypes`, `selectFieldTypes`, `appliesToOptions`, `existingForms`,
+  `existingGroups`, `identityNote`, `structureNote`, `customFieldsNote`, `groupNote`,
+  `example`.
+- `territories`: `existingTerritories`, `availableFranchiseeOrgs`, `exampleGeometry`,
+  `identityNote`, `geometryNote`.
+
+Fetch this before authoring records, every time. The admin UI's "copy agent doc" button
+produces exactly these two halves concatenated, so a pasted doc carries nothing extra.
 
 ### `GET /fsai-admin/bulk/:entityKey/export?brandId=<uuid>`
 
@@ -165,11 +183,31 @@ Within an envelope's `records` array:
 
 ## Entity keys
 
-`GET /fsai-admin/bulk/entities` is the live list. Known keys:
+`GET /fsai-admin/bulk/entities` is the live list, needs no brand and no grant, and is the
+only thing to trust. 39 keys as of 2026-09-14, confirmed live:
 
 `agents`, `applicant-portal`, `asset-shares`, `brand-feed`, `brand-mockup-sections`, `brand-profile`, `brand-setup`, `brand-ticket-categories`, `certificates`, `collections`, `courses`, `deal-fee-types`, `email-content`, `email-footers`, `forms`, `franchisee-entities`, `franchisees`, `funnel-sites`, `helpdesk-articles`, `ingredients`, `lead-statuses`, `leads`, `learning-paths`, `legal-terms`, `locations`, `manuals`, `marketing-prospects`, `menu-items`, `menu-templates`, `menus`, `project-templates`, `qr-code-templates`, `tags`, `territories`, `tracking-links`, `vendor-assignment-templates`, `vendor-types`, `vendors`, `workflows`.
 
 `helpdesk-articles` is global rather than per brand. The `brandId` you pass only scopes uploaded files, so any brand that is unlocked for that entity will work.
+
+## Repo fallback, only when the API is unreachable
+
+The platform repo is `franchiseai/fsai.git`, checked out at `~/work/fsai/fsai-codebase`. That
+checkout is chronically stale, so always `git fetch origin` first and read with
+`git show origin/master:<path>`.
+
+| Path | What it gives you |
+| --- | --- |
+| `apps/backend/src/api/bulkData/descriptors/<entity>.ts` | The Zod schema the live doc is generated from, with the `.describe()` text and the `snapshot()` hook. No brand data. |
+| `apps/backend/src/api/bulkData/descriptors/README.md` | Why the importer behaves as it does: natural-key upsert, replace-when-provided arrays, create-versus-link relations, file staging. Read once, not per task. |
+| `apps/backend/src/api/bulkData/agentDoc.ts` | The `schemaMarkdown` generator. |
+| `packages/sdk/src/types/bulkData.ts` | Typed request and response shapes for all six endpoints. |
+
+There is no OpenAPI document and no per-entity markdown checked into the repo. The generated
+doc exists only at request time.
+
+Full survey of every documentation surface with staleness dates:
+`~/work/fsai/brand-onboarding/reference/platform/bulk-api-doc-surfaces-2026-09-14.md`.
 
 ## Limits and errors
 
